@@ -1,33 +1,25 @@
 #[cfg(test)]
 mod tests {
-    use std::{mem::size_of, result::Result as StdResult};
+    use std::{mem::size_of, num::ParseIntError, result::Result as StdResult};
 
     use fuel_core_types::{
-        fuel_tx::{TxPointer, UtxoId},
-        fuel_types::{ContractId, Word},
+        fuel_tx::{Output, Receipt, UtxoId},
+        fuel_types::{Address, AssetId, Bytes32, Nonce},
     };
     use fuels::{
         accounts::{fuel_crypto::SecretKey, wallet::WalletUnlocked, ViewOnlyAccount},
         prelude::{
-            setup_test_provider, Bech32Address, Provider, ScriptTransaction, TxParameters,
-            BASE_ASSET_ID,
+            setup_test_provider, Bech32Address, Contract, LoadConfiguration, Provider,
+            ScriptTransaction, Signer, TxParameters, BASE_ASSET_ID,
         },
-        test_helpers::{setup_single_asset_coins, setup_single_message},
-        types::{coin::Coin, coin_type::CoinType, message::Message},
-    };
-
-    use std::num::ParseIntError;
-
-    use fuel_core_types::{
-        fuel_tx::{Output, Receipt},
-        fuel_types::{Address, AssetId, Bytes32},
-    };
-    use fuels::{
-        prelude::{Contract, LoadConfiguration, Signer},
-        test_helpers::DEFAULT_COIN_AMOUNT,
+        test_helpers::{setup_single_asset_coins, setup_single_message, DEFAULT_COIN_AMOUNT},
         types::{
+            coin::Coin,
+            coin_type::CoinType,
             input::Input,
+            message::Message,
             transaction_builders::{ScriptTransactionBuilder, TransactionBuilder},
+            ContractId,
         },
     };
     use primitive_types::U256;
@@ -103,7 +95,7 @@ mod tests {
             &Bech32Address::default(),
             recipient,
             100,
-            Word::default().into(),
+            Nonce::default(),
             message_data,
         );
         let message_input = Input::resource_signed(CoinType::Message(message.clone()), 0);
@@ -116,7 +108,7 @@ mod tests {
             UtxoId::new(Bytes32::zeroed(), 0u8),
             Bytes32::zeroed(),
             Bytes32::zeroed(),
-            TxPointer::default(),
+            Default::default(),
             calculate_contract_id(),
         )
     }
